@@ -1,34 +1,44 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { LoginAuthDto } from './dto/login-auth.dto';
+import { RegisterAuthDto } from './dto/register-auth.dto';
+import { Public } from 'src/shared/decorators/public.decorator';
+import { Controller, Get, Post, Body, UseGuards, Req, Render } from '@nestjs/common';
+import { Roles } from 'src/shared/decorators/roles.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('register')
+  @Public()
+  register(@Body() RegisterAuthDto: RegisterAuthDto) {
+    return this.authService.register(RegisterAuthDto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Roles('admin')
+  @Post('register-admin')
+  registerAdmin(@Body() RegisterAuthDto: RegisterAuthDto) {
+    return this.authService.registerAdmin(RegisterAuthDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Post('login')
+  @Public()
+  login(@Body() LoginAuthDto: LoginAuthDto) {
+    return this.authService.localLogin(LoginAuthDto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
+  @Get('google')
+  @Public()
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Get('google-login/callback')
+  @Public()
+  @UseGuards(AuthGuard('google'))
+  async googleLogin(@Req() req) {
+    const user = req.user;
+    return this.authService.googleLogin(user);
   }
 }

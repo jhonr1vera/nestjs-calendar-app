@@ -1,0 +1,7 @@
+{
+    "WELCOME_MAIL": "Bienvenido a nuestra aplicación de calendario",
+    "REMINDER_MAIL": "Recordatorio de evento",
+    "SUCCESS_REGISTER": "Usuario creado exitosamente, por favor inicia sesión",
+    "SUCCESS_REGISTER_ADMIN": "Administrador creado exitosamente, por favor inicia sesión",
+    "DEFAULT_REMINDER_DESCRIPTION": "Recordatorio de evento automatizado"
+}

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RemindersController } from './reminders.controller';
 import { RemindersService } from './reminders.service';
+import { RemindersController } from './reminders.controller';
 
 describe('RemindersController', () => {
   let controller: RemindersController;

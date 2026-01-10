@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, Column, OneToMany, ManyToOne } from "typeorm";
+import { Event } from "../../events/entities/event.entity";
+import { Role } from "src/roles/entities/role.entity";
+import { BaseEntity } from "src/shared/entities/base.entity";
 
 @Entity()
-export class User {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+export class User extends BaseEntity {
 
     @Column()
     firstName: string;
@@ -12,27 +12,33 @@ export class User {
     @Column()
     lastName: string;
 
-    @Column()
+    @Column({ nullable: true })
     username: string;
 
     @Column()
     email: string;
 
-    @Column()
+    @Column({ nullable: true })
     password: string;
 
-    @Column()
-    role: string;
-
-    @Column()
+    @Column({ nullable: true })
     defaultTimeZone: string;
 
     @Column()
     status: string;
 
-    @Column()
-    createdAt: Date;
+    @Column({ nullable: true })
+    lastLoginAt: Date;
+
+    @Column({ nullable: true })
+    locale: string;
 
     @Column()
-    updatedAt: Date;
+    loginProvider: string;
+
+    @ManyToOne(() => Role, (role) => role.users)
+    role: Role;
+
+    @OneToMany(() => Event, (event) => event.user)
+    events: Event[];
 }

@@ -1,0 +1,15 @@
+{
+    "USER_ALREADY_EXISTS": "Usuario ya existe",
+    "USER_NOT_FOUND": "Usuario no encontrado",
+    "INVALID_CREDENTIALS": "Credenciales inválidas",
+    "NO_USERS_REGISTERED": "No hay usuarios registrados",
+    "EVENT_NOT_FOUND": "Evento no encontrado",
+    "EVENTS_NOT_FOUND": "Eventos no encontrados",
+    "ROLE_ALREADY_EXISTS": "Role por nombre {name} ya existe",
+    "ROLES_NOT_FOUND": "Roles no encontrados",
+    "ROLE_NOT_FOUND": "Role no encontrado",
+    "REMINDER_NOT_FOUND": "Recordatorio no encontrado",
+    "REMINDERS_NOT_FOUND": "Recordatorios no encontrados",
+    "UNAUTHORIZED": "No autorizado",
+    "FORBIDDEN_RESOURCE": "Recursos prohibidos"
+}

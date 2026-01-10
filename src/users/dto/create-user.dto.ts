@@ -1,4 +1,5 @@
-import { IsEmail, IsString, IsDate } from "class-validator";
+import { IsEmail, IsOptional, IsString } from "class-validator";
+import { Role } from 'src/roles/entities/role.entity';
 
 export class CreateUserDto {
 
@@ -15,18 +16,14 @@ export class CreateUserDto {
     @IsString()
     password: string;
 
-    @IsString()
-    role: string;
+    @IsOptional()
+    role: Role;
 
     @IsString()
+    @IsOptional()
     defaultTimeZone: string;
 
     @IsString()
-    status: string;
-
-    @IsDate()
-    createdAt: Date;
-
-    @IsDate()
-    updatedAt: Date;
+    @IsOptional()
+    locale: string;
 }

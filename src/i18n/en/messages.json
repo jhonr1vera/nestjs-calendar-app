@@ -1,0 +1,7 @@
+{
+    "WELCOME_MAIL": "Welcome to our calendar application",
+    "REMINDER_MAIL": "Reminder of event",
+    "SUCCESS_REGISTER": "User created successfully, please login",
+    "SUCCESS_REGISTER_ADMIN": "Admin created successfully, please login",
+    "DEFAULT_REMINDER_DESCRIPTION": "Auto reminder of event"
+}

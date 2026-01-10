@@ -1,20 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { User } from "src/users/entities/user.entity";
+import { Entity, Column, OneToMany } from "typeorm";
+import { BaseEntity } from "src/shared/entities/base.entity";
 
 @Entity()
-export class Role {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Role extends BaseEntity {
 
     @Column()
     name: string;
 
-    @Column()
+    @Column({ nullable: true })
     description: string;
 
-    @Column()
-    createdAt: Date;
-
-    @Column()
-    updatedAt: Date;
+    @OneToMany(() => User, (user) => user.role)
+    users: User[]
 }

@@ -1,32 +1,70 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { I18nService } from 'nestjs-i18n';
+import { Event } from './entities/event.entity';
+import { User } from 'src/users/entities/user.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { Repository } from 'typeorm';
-import { Event } from './entities/event.entity';
-
+import { RemindersService } from 'src/reminders/reminders.service';
+import { Injectable, Inject, NotFoundException, UnauthorizedException } from '@nestjs/common';
 @Injectable()
 export class EventsService {
 
   constructor(@Inject('EVENT_REPOSITORY')
-  private eventRepository: Repository<Event>) { }
+  private eventRepository: Repository<Event>,
+    private remindersService: RemindersService,
+    private readonly i18nService: I18nService) { }
 
-  create(createEventDto: CreateEventDto) {
-    return 'This action adds a new event';
+  async create(createEventDto: CreateEventDto, user: User) {
+    const event = await this.eventRepository.create({
+      ...createEventDto,
+      user
+    });
+
+    await this.remindersService.create({
+      date: new Date(event.startAt.getTime() - 60 * 1000),
+      description: this.i18nService.t("messages.DEFAULT_REMINDER_DESCRIPTION"),
+    });
+
+    return await this.eventRepository.save(event);
   }
 
-  findAll() {
-    return `This action returns all events`;
+  async findAll() {
+
+    const events = await this.eventRepository.find();
+
+    if (!events) throw new NotFoundException(this.i18nService.t("validators.EVENTS_NOT_FOUND"));
+
+    return events;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
+  async findAllByUser(user: User) {
+
+    const events = await this.eventRepository.find({ where: { user } });
+
+    if (events.length === 0) throw new NotFoundException(this.i18nService.t("validators.EVENTS_NOT_FOUND"));
+
+    return events;
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+  async findOne(id: number, user: User) {
+    const event = await this.eventRepository.findOne({
+      where: { id, user: { id: user.id } }
+    });
+
+    if (!event) throw new NotFoundException(this.i18nService.t("validators.EVENT_NOT_FOUND"));
+
+    return event;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+  async update(id: number, updateEventDto: UpdateEventDto, user: User) {
+    await this.findOne(id, user)
+
+    return await this.eventRepository.update(id, updateEventDto);
+  }
+
+  async remove(id: number, user: User) {
+    await this.findOne(id, user)
+
+    return await this.eventRepository.softDelete(id);
   }
 }

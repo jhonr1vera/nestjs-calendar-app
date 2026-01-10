@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolvePackageJsonExports": false,
+    "target": "ES2019",
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts"],
+  "ts-node": {
+    "transpileOnly": true
+  }
+}
