@@ -1,0 +1,274 @@
+{{> head }}
+<!-- FullCalendar CSS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<body class="bg-light">
+    {{> header}}
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+             <h2>{{ t "messages.WELCOME" }}, {{ user.firstName }}</h2>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div id="calendar" style="min-height: 800px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="createEventModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ t "messages.CREATE_EVENT" }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createEventForm">
+                        <div id="error-alert" class="alert alert-danger d-none"></div>
+                        <div class="mb-3">
+                            <label for="eventName" class="form-label">{{ t "messages.EVENT_NAME" }}</label>
+                            <input type="text" class="form-control" id="eventName" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventDescription" class="form-label">{{ t "messages.EVENT_DESCRIPTION" }}</label>
+                            <textarea class="form-control" id="eventDescription" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventStart" class="form-label">{{ t "messages.EVENT_START" }}</label>
+                            <input type="datetime-local" class="form-control" id="eventStart" name="startAt" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventEnd" class="form-label">{{ t "messages.EVENT_END" }}</label>
+                            <input type="datetime-local" class="form-control" id="eventEnd" name="endAt" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t "messages.CLOSE" }}</button>
+                    <button type="button" class="btn btn-primary" onclick="submitEvent()">{{ t "messages.SAVE" }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="viewEventModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ t "messages.EVENT_DETAILS" }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">{{ t "messages.EVENT_NAME" }}</dt>
+                        <dd class="col-sm-8" id="viewEventTitle"></dd>
+
+                        <dt class="col-sm-4">{{ t "messages.EVENT_DESCRIPTION" }}</dt>
+                        <dd class="col-sm-8" id="viewEventDescription"></dd>
+
+                        <dt class="col-sm-4">{{ t "messages.EVENT_START" }}</dt>
+                        <dd class="col-sm-8" id="viewEventStart"></dd>
+
+                        <dt class="col-sm-4">{{ t "messages.EVENT_END" }}</dt>
+                        <dd class="col-sm-8" id="viewEventEnd"></dd>
+
+                        <dt class="col-sm-12 mt-3">{{ t "messages.REMINDERS" }}</dt>
+                        <dd class="col-sm-12" id="viewEventReminders">
+                        </dd>
+                    </dl>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t "messages.CLOSE" }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{{> foot}}
+
+<script>
+    let calendar;
+    let modal;
+    let viewModal;
+    let errorAlert;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        modal = new bootstrap.Modal(document.getElementById('createEventModal'));
+        viewModal = new bootstrap.Modal(document.getElementById('viewEventModal'));
+        errorAlert = document.getElementById('error-alert');
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth'
+                {{!-- right: 'dayGridMonth,timeGridWeek,timeGridDay' --}}
+            },
+            selectable: true,
+            editable: true,
+            eventClick: function(info) {
+                openViewModal(info.event);
+            },
+            dateClick: function(info) {
+                openCreateModal(info.dateStr);
+            },
+            events: async function(info, successCallback, failureCallback) {
+                try {
+                    const response = await fetch('/events/me');
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    
+                    const events = data.map(event => ({
+                        id: event.id,
+                        title: event.title,
+                        start: event.startAt,
+                        end: event.endAt,
+                        extendedProps: {
+                            description: event.description,
+                            reminders: event.reminders
+                        }
+                    }));
+                    
+                    successCallback(events);
+                } catch (error) {
+                    console.error('Error fetching events:', error);
+                    failureCallback(error);
+                }
+            }
+        });
+
+        calendar.render();
+    });
+
+    function openViewModal(event) {
+        document.getElementById('viewEventTitle').textContent = event.title;
+        document.getElementById('viewEventDescription').textContent = event.extendedProps.description || '-';
+        document.getElementById('viewEventStart').textContent = event.start ? event.start.toLocaleString() : '-';
+        document.getElementById('viewEventEnd').textContent = event.end ? event.end.toLocaleString() : '-';
+        
+        const remindersDiv = document.getElementById('viewEventReminders');
+        remindersDiv.innerHTML = '';
+
+        const reminders = event.extendedProps.reminders;
+        if (reminders && reminders.length > 0) {
+            reminders.forEach(reminder => {
+                const card = document.createElement('div');
+                card.className = 'card mb-2';
+                
+                const cardBody = document.createElement('div');
+                cardBody.className = 'card-body p-2';
+                
+                const date = new Date(reminder.date);
+                
+                const title = document.createElement('h6');
+                title.className = 'card-subtitle mb-1 text-muted';
+                title.style.fontSize = '0.85rem';
+                title.textContent = date.toLocaleString();
+                
+                const text = document.createElement('p');
+                text.className = 'card-text mb-0';
+                text.textContent = reminder.description || 'Reminder';
+                
+                cardBody.appendChild(title);
+                cardBody.appendChild(text);
+                card.appendChild(cardBody);
+                remindersDiv.appendChild(card);
+            });
+        } else {
+            remindersDiv.textContent = '{{ t "messages.NO_REMINDERS" }}';
+        }
+
+        viewModal.show();
+    }
+
+    function openCreateModal(dateStr) {
+        
+        // Set default start time to clicked date at 09:00
+        const start = new Date(dateStr);
+        start.setHours(9, 0, 0);
+        
+        const end = new Date(start);
+        end.setHours(10, 0, 0);
+
+        const formatDateTime = (date) => {
+            return date.toISOString().slice(0, 16);
+        };
+
+        document.getElementById('eventStart').value = formatDateTime(start);
+        document.getElementById('eventEnd').value = formatDateTime(end);
+        document.getElementById('createEventForm').reset();
+        
+        document.getElementById('eventStart').value = formatDateTime(start);
+        document.getElementById('eventEnd').value = formatDateTime(end);
+
+        document.getElementById('eventEnd').value = formatDateTime(end);
+
+        errorAlert.classList.add('d-none');
+        errorAlert.textContent = '';
+
+        modal.show();
+    }
+
+    async function submitEvent() {
+        const form = document.getElementById('createEventForm');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());s
+
+        if (!data.title || !data.startAt || !data.endAt) {
+            errorAlert.textContent = '{{ t "validators.DATA_IS_REQUIRED"}}';
+            errorAlert.classList.remove('d-none');
+            return;
+        }
+
+        try {
+            const response = await fetch('/events', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                const newEvent = await response.json();
+                calendar.addEvent({
+                    title: newEvent.title,
+                    start: newEvent.startAt,
+                    end: newEvent.endAt
+                });
+                modal.hide();
+                form.reset();
+            } else {
+                const result = await response.json();
+                console.log('Error result:', result);
+                let errorMsg = 'An error occurred';
+                errorAlert.classList.remove('d-none');
+                if (result.message) {
+                    const msgData = result.message;
+                    if (typeof msgData === 'string') {
+                        errorMsg = msgData;
+                    } else if (typeof msgData === 'object') {
+                        if (Array.isArray(msgData.message)) {
+                        errorMsg = msgData.message.join(', ');
+                    } else if (msgData.message) {
+                        errorMsg = msgData.message;
+                    }
+                }
+            }
+            
+            errorAlert.textContent = errorMsg;
+            errorAlert.classList.remove('d-none');
+          }
+        } catch (error) {
+            errorAlert.textContent = 'A network error occurred. Please try again.';
+            errorAlert.classList.remove('d-none');
+        }
+    }
+</script>
+</body>
+</html>
