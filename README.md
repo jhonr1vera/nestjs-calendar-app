@@ -4,6 +4,15 @@
 
 Fluxo is a calendar application(API) developed with NestJS. The purpose of this application is to provide you with a space where you can centrally organise all your plans within your preferred time frame.
 
+## Table of Contents
+
+- [Description](#description)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Project setup](#project-setup)
+- [Compile and run the project](#compile-and-run-the-project)
+- [Run tests](#run-tests)
+
 ## Features
 
 - Event registration.
@@ -52,9 +61,7 @@ JWT_SECRET =
 $ npm run seed:run
 ```
 
-### Optional steps:
-
-#### Step 5: If you want to enable Google login
+#### Step 5: To enable Google login
 
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/).
 2. Create a new **Project**.
@@ -69,6 +76,8 @@ $ npm run seed:run
    GOOGLE_CLIENT_SECRET=your_client_secret
    GOOGLE_CALLBACK_URL=http://localhost:5000/auth/google-login/callback
    ```
+
+### Optional step:
 
 #### Step 6: If you want to enable email notifications (reminder functionality)
 
