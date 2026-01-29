@@ -36,7 +36,6 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string) {
-    console.log(email);
     const user = await this.usersRepository.findOneBy({ email });
 
     return user
@@ -50,6 +49,9 @@ export class UsersService {
         id: true,
         publicId: true,
         locale: true,
+        lastName: true,
+        firstName: true,
+        email: true,
         role: {
           name: true
         }
