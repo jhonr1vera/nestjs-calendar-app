@@ -7,6 +7,7 @@ import { User } from 'src/users/entities/user.entity';
 import { MailService } from 'src/mail/mail.service';
 import { I18nService } from 'nestjs-i18n';
 import { RolesService } from 'src/roles/roles.service';
+import { HashService } from 'src/hash/hash.service';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +17,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
     private readonly i18nService: I18nService,
-    private readonly roleService: RolesService
+    private readonly roleService: RolesService,
+    private readonly hashService: HashService
   ) { }
 
   generateToken(user: User) {
@@ -42,14 +44,19 @@ export class AuthService {
       throw new ServiceUnavailableException(this.i18nService.t("errors.UNABLE_TO_CREATE_USER"));
     }
 
+    // Remove passwordConfirm from RegisterAuthDto
+    const { passwordConfirm, ...userData } = RegisterAuthDto;
+
+    userData.password = await this.hashService.hashPassword(userData.password);
+
     const userDto = {
-      ...RegisterAuthDto,
+      ...userData,
       role: role,
       status: 'active',
       lastLoginAt: new Date(),
-      locale: 'en',
       loginProvider: 'local',
       defaultTimeZone: 'UTC',
+      locale: 'en',
     }
 
     const user = await this.usersService.create(userDto);
@@ -76,7 +83,10 @@ export class AuthService {
 
     const userDto = {
       ...RegisterAuthDto,
-      role: role
+      role: role,
+      defaultTimeZone: 'UTC',
+      locale: 'en',
+      emailVerifiedAt: new Date(),
     }
 
     await this.usersService.create(userDto);
@@ -92,7 +102,9 @@ export class AuthService {
       throw new NotFoundException(this.i18nService.t("validators.USER_NOT_FOUND"));
     }
 
-    if (userExists.password !== loginAuthDto.password) {
+    const isMatch = await this.hashService.comparePassword(loginAuthDto.password, userExists.password);
+
+    if (!isMatch) {
       throw new ForbiddenException(this.i18nService.t("validators.INVALID_CREDENTIALS"));
     }
 
@@ -121,6 +133,7 @@ export class AuthService {
       locale: 'en',
       loginProvider: 'google',
       defaultTimeZone: 'UTC',
+      emailVerifiedAt: new Date(),
     }
 
     const newUser = await this.usersService.create(newUserDto);
@@ -128,5 +141,9 @@ export class AuthService {
     await this.mailService.welcomeMail(newUser, this.i18nService.t("messages.WELCOME_MAIL", { lang: newUser.locale }), 'welcome');
 
     return this.generateToken(newUser);
+  }
+
+  async logout() {
+    return this.i18nService.t("messages.LOGOUT_SUCCESS");
   }
 }
