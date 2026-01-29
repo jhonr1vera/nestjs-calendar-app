@@ -23,6 +23,7 @@ export class EventsService {
     await this.remindersService.create({
       date: new Date(event.startAt.getTime() - 60 * 1000),
       description: this.i18nService.t("messages.DEFAULT_REMINDER_DESCRIPTION"),
+      event: event
     });
 
     return await this.eventRepository.save(event);
@@ -39,16 +40,18 @@ export class EventsService {
 
   async findAllByUser(user: User) {
 
-    const events = await this.eventRepository.find({ where: { user } });
-
-    if (events.length === 0) throw new NotFoundException(this.i18nService.t("validators.EVENTS_NOT_FOUND"));
+    const events = await this.eventRepository.find({
+      where: { user },
+      relations: ['reminders']
+    });
 
     return events;
   }
 
   async findOne(id: number, user: User) {
     const event = await this.eventRepository.findOne({
-      where: { id, user: { id: user.id } }
+      where: { id, user: { id: user.id } },
+      relations: ['reminders']
     });
 
     if (!event) throw new NotFoundException(this.i18nService.t("validators.EVENT_NOT_FOUND"));
