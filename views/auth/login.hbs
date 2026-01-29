@@ -1,0 +1,88 @@
+{{> head }}
+<body class="bg-light">
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+      <div class="card shadow-sm" style="width: 100%; max-width: 500px;">
+        <div class="card-body p-5">
+          <h1 class="card-title text-center mb-4">{{ t 'messages.LOGIN' }}</h1>
+          
+          <form action="/auth/login" method="POST">
+            <div id="error-alert" class="alert alert-danger d-none"></div>
+            <div class="mb-3">
+              <label for="email" class="form-label">{{ t 'messages.EMAIL' }}</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">{{ t 'messages.PASSWORD' }}</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">{{ t 'messages.LOGIN' }}</button>
+            </div>
+          </form>
+          <div class="d-flex justify-content-between mt-3">
+            <div>
+              <p>{{ t 'messages.DONT_HAVE_ACCOUNT' }}</p>
+            </div>
+            <div>
+              <a href="/auth/register">{{ t 'messages.CLICK_HERE_TO_REGISTER' }}</a>
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <a class="btn btn-outline-primary" href="/auth/google">{{ t 'messages.LOGIN_WITH_GOOGLE' }}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const form = document.querySelector('form');
+      const errorAlert = document.getElementById('error-alert');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorAlert.classList.add('d-none');
+        errorAlert.textContent = '';
+
+        const formData = new FormData(form);
+        const jsonData = Object.fromEntries(formData.entries());
+
+        try {
+          const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jsonData)
+          });
+
+          if (response.ok) {
+            window.location.href = '/';
+          } else {
+            const result = await response.json();
+            console.log('Error result:', result);
+            let errorMsg = 'An error occurred';
+            
+            if (result.message) {
+                const msgData = result.message;
+                if (typeof msgData === 'string') {
+                    errorMsg = msgData;
+                } else if (typeof msgData === 'object') {
+                    if (Array.isArray(msgData.message)) {
+                        errorMsg = msgData.message.join(', ');
+                    } else if (msgData.message) {
+                        errorMsg = msgData.message;
+                    }
+                }
+            }
+            
+            errorAlert.textContent = errorMsg;
+            errorAlert.classList.remove('d-none');
+          }
+        } catch (error) {
+          errorAlert.textContent = 'A network error occurred. Please try again.';
+          errorAlert.classList.remove('d-none');
+        }
+      });
+    </script>
+    {{> foot}}
+</body>

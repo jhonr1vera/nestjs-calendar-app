@@ -1,0 +1,60 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="/">{{ t 'messages.APP_NAME' }}</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    {{#if user}}
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" href="/">{{ t 'messages.HOME' }}</a>
+        </li>
+
+      </ul>
+      <div class="d-flex align-items-center">
+        <div class="dropdown">
+          <button class="btn btn-link text-dark text-decoration-none dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ user.firstName }} {{ user.lastName }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><span class="dropdown-item-text text-muted small">{{ user.email }}</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">{{ t 'messages.PROFILE' }}</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item text-danger" href="#" onclick="logout()">
+                    {{ t 'messages.LOGOUT' }}
+                </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    {{else}}
+    <div class="d-flex">
+      <a href="/auth/login" class="btn btn-outline-primary me-2">{{ t 'messages.LOGIN' }}</a>
+      <a href="/auth/register" class="btn btn-primary">{{ t 'messages.REGISTER' }}</a>
+    </div>
+    {{/if}}
+    </div>
+  </div>
+</nav>
+
+<script>
+  async function logout() {
+    try {
+      const response = await fetch('/auth/logout', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (response.ok || response.status === 200) {
+        window.location.href = '/landing-page';
+      } else {
+        window.location.href = '/landing-page';
+      }
+    } catch (error) {
+      window.location.href = '/landing-page';
+    }
+  }
+</script>

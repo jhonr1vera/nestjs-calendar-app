@@ -52,7 +52,7 @@
         </div>
     </div>
     
-    <div class="modal fade" id="viewEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="viewEventModal" tabindex="1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -80,6 +80,36 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t "messages.CLOSE" }}</button>
+                    <button type="button" class="btn btn-primary" onclick="openCreateReminderModal()">{{ t "messages.ADD_REMINDER" }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Reminder Modal -->
+    <div class="modal fade" id="createReminderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ t "messages.CREATE_REMINDER" }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createReminderForm">
+                        <input type="hidden" id="reminderEventId" name="eventId">
+                        <div class="mb-3">
+                            <label for="reminderDescription" class="form-label">{{ t "messages.REMINDER_DESCRIPTION" }}</label>
+                            <input type="text" class="form-control" id="reminderDescription" name="description" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reminderDate" class="form-label">{{ t "messages.REMINDER_DATE" }}</label>
+                            <input type="datetime-local" class="form-control" id="reminderDate" name="date" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateReminderModal()">{{ t "messages.CLOSE" }}</button>
+                    <button type="button" class="btn btn-primary" onclick="submitReminder()">{{ t "messages.SAVE" }}</button>
                 </div>
             </div>
         </div>
@@ -91,12 +121,15 @@
     let calendar;
     let modal;
     let viewModal;
+    let reminderModal;
     let errorAlert;
+    let currentEventId;
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
         modal = new bootstrap.Modal(document.getElementById('createEventModal'));
         viewModal = new bootstrap.Modal(document.getElementById('viewEventModal'));
+        reminderModal = new bootstrap.Modal(document.getElementById('createReminderModal'));
         errorAlert = document.getElementById('error-alert');
 
         calendar = new FullCalendar.Calendar(calendarEl, {
@@ -110,6 +143,7 @@
             selectable: true,
             editable: true,
             eventClick: function(info) {
+                currentEventId = info.event.id;
                 openViewModal(info.event);
             },
             dateClick: function(info) {
@@ -151,6 +185,8 @@
         document.getElementById('viewEventStart').textContent = event.start ? event.start.toLocaleString() : '-';
         document.getElementById('viewEventEnd').textContent = event.end ? event.end.toLocaleString() : '-';
         
+        if (event.id) currentEventId = event.id;
+
         const remindersDiv = document.getElementById('viewEventReminders');
         remindersDiv.innerHTML = '';
 
@@ -165,16 +201,32 @@
                 
                 const date = new Date(reminder.date);
                 
+                const header = document.createElement('div');
+                header.className = 'd-flex justify-content-between align-items-start';
+
                 const title = document.createElement('h6');
                 title.className = 'card-subtitle mb-1 text-muted';
                 title.style.fontSize = '0.85rem';
                 title.textContent = date.toLocaleString();
                 
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-link btn-sm p-0 text-danger';
+                deleteBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                `;
+                deleteBtn.onclick = () => deleteReminder(reminder.id);
+
+                header.appendChild(title);
+                header.appendChild(deleteBtn);
+
                 const text = document.createElement('p');
                 text.className = 'card-text mb-0';
                 text.textContent = reminder.description || 'Reminder';
                 
-                cardBody.appendChild(title);
+                cardBody.appendChild(header);
                 cardBody.appendChild(text);
                 card.appendChild(cardBody);
                 remindersDiv.appendChild(card);
@@ -184,6 +236,114 @@
         }
 
         viewModal.show();
+    }
+
+    function openCreateReminderModal() {
+        viewModal.hide();
+        document.getElementById('createReminderForm').reset();
+        document.getElementById('reminderEventId').value = currentEventId;
+        
+        const now = new Date();
+        now.setHours(now.getHours() + 1);
+        document.getElementById('reminderDate').value = now.toISOString().slice(0, 16);
+
+        reminderModal.show();
+    }
+
+    function closeCreateReminderModal() {
+        reminderModal.hide();
+        const event = calendar.getEventById(currentEventId);
+        if (event) {
+            openViewModal(event);
+        }
+    }
+
+    async function submitReminder() {
+        const form = document.getElementById('createReminderForm');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+
+        if (!data.description || !data.date) {
+            alert('Please fill in required fields');
+            return;
+        }
+
+        const payload = {
+            description: data.description,
+            date: data.date,
+            event: { id: parseInt(currentEventId) }
+        };
+
+        try {
+            const response = await fetch('/reminders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                reminderModal.hide();
+                calendar.refetchEvents();
+                
+                // Fetch single event to update view immediately
+                const eventResponse = await fetch(`/events/${currentEventId}`);
+                if (eventResponse.ok) {
+                    const updatedEventData = await eventResponse.json();
+                    const pseudoEvent = {
+                        id: updatedEventData.id,
+                        title: updatedEventData.title,
+                        start: new Date(updatedEventData.startAt),
+                        end: new Date(updatedEventData.endAt),
+                        extendedProps: {
+                            description: updatedEventData.description,
+                            reminders: updatedEventData.reminders
+                        }
+                    };
+                    openViewModal(pseudoEvent);
+                }
+            } else {
+                alert('{{ t "messages.ERROR_CREATING_REMINDER" }}');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('{{ t "messages.ERROR_CREATING_REMINDER" }}');
+        }
+    }
+
+    async function deleteReminder(id) {
+        if (!confirm('{{ t "messages.DELETE_REMINDER_CONFIRM" }}')) return;
+
+        try {
+            const response = await fetch(`/reminders/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                // Fetch single event to update view immediately
+                const eventResponse = await fetch(`/events/${currentEventId}`);
+                if (eventResponse.ok) {
+                    const updatedEventData = await eventResponse.json();
+                    const pseudoEvent = {
+                        id: updatedEventData.id,
+                        title: updatedEventData.title,
+                        start: new Date(updatedEventData.startAt),
+                        end: new Date(updatedEventData.endAt),
+                        extendedProps: {
+                            description: updatedEventData.description,
+                            reminders: updatedEventData.reminders
+                        }
+                    };
+                    openViewModal(pseudoEvent);
+                }
+            } else {
+                alert('{{ t "messages.ERROR_DELETING_REMINDER" }}');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('{{ t "messages.ERROR_DELETING_REMINDER" }}');
+        }
     }
 
     function openCreateModal(dateStr) {
@@ -217,7 +377,7 @@
     async function submitEvent() {
         const form = document.getElementById('createEventForm');
         const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());s
+        const data = Object.fromEntries(formData.entries());
 
         if (!data.title || !data.startAt || !data.endAt) {
             errorAlert.textContent = '{{ t "validators.DATA_IS_REQUIRED"}}';
