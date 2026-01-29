@@ -6,12 +6,6 @@ import { BaseEntity } from "src/shared/entities/base.entity";
 @Entity()
 export class User extends BaseEntity {
 
-    @Column()
-    firstName: string;
-
-    @Column()
-    lastName: string;
-
     @Column({ nullable: true })
     username: string;
 
@@ -24,14 +18,26 @@ export class User extends BaseEntity {
     @Column({ nullable: true })
     defaultTimeZone: string;
 
-    @Column()
-    status: string;
+    @Column({ nullable: true })
+    firstName: string;
+
+    @Column({ nullable: true })
+    lastName: string;
+
+    @Column({ nullable: true })
+    emailVerifiedAt: Date;
 
     @Column({ nullable: true })
     lastLoginAt: Date;
 
     @Column({ nullable: true })
+    additionalInformationCreatedAt: Date;
+
+    @Column({ nullable: true })
     locale: string;
+
+    @Column()
+    status: string;
 
     @Column()
     loginProvider: string;
