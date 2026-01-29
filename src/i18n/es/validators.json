@@ -1,5 +1,5 @@
 {
-    "USER_ALREADY_EXISTS": "Usuario ya existe",
+    "USER_ALREADY_EXISTS": "El usuario ya existe",
     "USER_NOT_FOUND": "Usuario no encontrado",
     "INVALID_CREDENTIALS": "Credenciales inválidas",
     "NO_USERS_REGISTERED": "No hay usuarios registrados",
@@ -11,5 +11,14 @@
     "REMINDER_NOT_FOUND": "Recordatorio no encontrado",
     "REMINDERS_NOT_FOUND": "Recordatorios no encontrados",
     "UNAUTHORIZED": "No autorizado",
-    "FORBIDDEN_RESOURCE": "Recursos prohibidos"
+    "FORBIDDEN_RESOURCE": "Recursos prohibidos",
+    "PASSWORD_TOO_WEAK": "Contraseña demasiado débil",
+    "IS_STRING": "{property} debe ser una cadena",
+    "IS_EMAIL": "Formato de correo electrónico inválido",
+    "MIN_LENGTH": "{property} debe tener al menos {constraints.0} caracteres",
+    "MAX_LENGTH": "{property} debe tener como máximo {constraints.0} caracteres",
+    "IS_MATCH": "Los campos de {property} no coinciden",
+    "IS_NOT_EMPTY": "{property} es requerido",
+    "IS_DATE": "{property} debe ser una fecha",
+    "DATA_IS_REQUIRED": "Los datos son requeridos"
 }

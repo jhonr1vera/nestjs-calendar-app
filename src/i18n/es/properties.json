@@ -1,0 +1,10 @@
+{
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "passwordConfirm": "Confirmar contraseña",
+    "username": "Nombre de usuario",
+    "title": "Titulo",
+    "description": "Descripcion",
+    "startAt": "Fecha de inicio",
+    "endAt": "Fecha de fin"
+}

@@ -4,10 +4,12 @@ import { Role } from 'src/roles/entities/role.entity';
 export class CreateUserDto {
 
     @IsString()
-    firstName: string;
+    @IsOptional()
+    firstName?: string;
 
     @IsString()
-    lastName: string;
+    @IsOptional()
+    lastName?: string;
 
     @IsString()
     @IsEmail()
