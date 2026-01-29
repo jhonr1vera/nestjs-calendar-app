@@ -27,12 +27,13 @@ import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
-        path: path.join(__dirname, '/i18n/'),
+        path: path.join(__dirname, 'i18n'),
         watch: true,
       },
       resolvers: [
         AcceptLanguageResolver,
       ],
+      viewEngine: 'hbs',
     }),
     JwtModule.registerAsync({
       global: true,
@@ -67,3 +68,4 @@ import { AcceptLanguageResolver, I18nModule } from 'nestjs-i18n';
   ],
 })
 export class AppModule { }
+
