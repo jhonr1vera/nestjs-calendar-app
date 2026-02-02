@@ -57,6 +57,7 @@ export class AuthService {
       loginProvider: 'local',
       defaultTimeZone: 'UTC',
       locale: 'en',
+      credentialsCreatedAt: new Date(),
     }
 
     const user = await this.usersService.create(userDto);

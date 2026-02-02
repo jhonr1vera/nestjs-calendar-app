@@ -34,6 +34,9 @@ export class User extends BaseEntity {
     additionalInformationCreatedAt: Date;
 
     @Column({ nullable: true })
+    credentialsCreatedAt: Date;
+
+    @Column({ nullable: true })
     locale: string;
 
     @Column()
