@@ -20,13 +20,16 @@ export class EventsService {
       user
     });
 
+    await this.eventRepository.save(event);
+
     await this.remindersService.create({
       date: new Date(event.startAt.getTime() - 60 * 1000),
       description: this.i18nService.t("messages.DEFAULT_REMINDER_DESCRIPTION"),
       event: event
     });
 
-    return await this.eventRepository.save(event);
+    return event;
+
   }
 
   async findAll() {
