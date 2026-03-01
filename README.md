@@ -118,3 +118,8 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## 🚧 Incoming Changes
+
+- Administrator dashboard.
+- Email for event registration.
