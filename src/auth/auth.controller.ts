@@ -59,9 +59,14 @@ export class AuthController {
   @Get('google-login/callback')
   @Public()
   @UseGuards(AuthGuard('google'))
-  async googleLogin(@Req() req) {
-    const user = req.user;
-    return this.authService.googleLogin(user);
+  async googleLogin(@Req() req, @Res() res: Response) {
+    const token = await this.authService.googleLogin(req.user);
+    res.cookie('access_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 3600 * 1000,
+    });
+    return res.redirect('/');
   }
   @Post('logout')
   @Public()
