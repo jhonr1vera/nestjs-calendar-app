@@ -37,6 +37,6 @@ async function bootstrap() {
   app.use(require('express').urlencoded({ extended: true }));
   app.use(require('cookie-parser')());
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(Number(process.env.PORT) ?? 3000);
 }
 bootstrap();
