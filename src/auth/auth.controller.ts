@@ -36,6 +36,9 @@ export class AuthController {
   @Public()
   @Render('auth/login')
   showLogin() {
+    return {
+      googleAuthEnabled: process.env.GOOGLE_AUTH_ENABLED === 'true',
+    };
   }
 
   @Post('login')

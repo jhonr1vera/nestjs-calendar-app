@@ -27,9 +27,11 @@
               <a href="/auth/register">{{ t 'messages.CLICK_HERE_TO_REGISTER' }}</a>
             </div>
           </div>
+          {{#if googleAuthEnabled}}
           <div class="text-center mt-3">
             <a class="btn btn-outline-primary" href="/auth/google">{{ t 'messages.LOGIN_WITH_GOOGLE' }}</a>
           </div>
+          {{/if}}
         </div>
       </div>
     </div>
