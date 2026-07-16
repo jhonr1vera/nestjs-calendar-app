@@ -100,10 +100,12 @@ Follow these steps to set up the project locally after defining the environment 
     ```
 
 6.  **Start the server**:
-    Development mode with hot reload ("watch").
+    Development mode with hot reload ("watch")
     ```bash
-    npm run start:dev
+    docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
     ```
+
+    More information about how to manage the container in the [Docker.md](./docker.md) file.
 
 ## <a name="difference-between-env-environments"></a>5. Difference between .env environments
 
