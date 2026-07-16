@@ -1,0 +1,22 @@
+services:
+  app:
+    container_name: nestjs_calendar_app_app_dev
+    env_file:
+      - .env
+    volumes:
+      - .:/app:delegated
+      - /app/node_modules
+    command: npm run start:dev
+    depends_on:
+      - db
+
+  db:
+    container_name: nestjs_calendar_app_db_dev
+    environment:
+      POSTGRES_DB: calendar_dev
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql
+
+volumes:
+  postgres_dev_data:
+    name: nestjs_calendar_app_postgres_dev_data
