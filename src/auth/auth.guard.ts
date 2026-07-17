@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from 'src/shared/decorators/public.decorator';
 import { I18nService } from 'nestjs-i18n';
@@ -47,7 +47,9 @@ export class AuthGuard implements CanActivate {
     }
 
     if (!request['user']) {
-      throw new UnauthorizedException(this.i18nService.t("validators.UNAUTHORIZED"));
+      const response = context.switchToHttp().getResponse<Response>();
+      response.redirect('/landing-page');
+      return false;
     }
 
     return true;
