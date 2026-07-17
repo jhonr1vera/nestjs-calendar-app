@@ -123,3 +123,4 @@ $ npm run test:cov
 
 - Administrator dashboard.
 - Email for event registration.
+- Profile Details Section
