@@ -10,6 +10,7 @@ Fluxo is a calendar application(API) developed with NestJS. The purpose of this 
 - [Features](#features)
 - [Requirements](#requirements)
 - [Project setup](#project-setup)
+   - [Docker Guide](./docs/docker.md)
 - [Compile and run the project](#compile-and-run-the-project)
 - [Run tests](#run-tests)
 
@@ -22,8 +23,9 @@ Fluxo is a calendar application(API) developed with NestJS. The purpose of this 
 ## Requirements
 
 - Node +20 (Developed in version 22.19.0)
-- NestJS
 - PostgreSQL +17.6
+Also, you can use instead:
+- Docker
 
 ## Project setup
 
@@ -32,6 +34,8 @@ Fluxo is a calendar application(API) developed with NestJS. The purpose of this 
 ```bash
 $ npm install
 ```
+
+> Use this command in case you have Node and Postgres installed locally. If you choose the docker tool route use the [Docker Guide](./docs/docker.md) then continue with the following steps.
 
 #### Step 2: Create a Postgres database without making any additional changes.
 
@@ -93,20 +97,17 @@ $ npm run seed:run
    EMAIL_FROM=onboarding@resend.dev
    ```
 
-## Compile and run the project
+## Technical notes about the project
 
-```bash
-# development
-$ npm run start
+- The project uses `nestjs-i18n` with:
+  ```ts
+  path: path.join(__dirname, 'i18n')
+  ```
+- `tsconfig.json` outputs files to `./dist`.
+- `nest-cli.json` copies the `i18n/**/*` assets to `dist`, which is required for translation loading.
+- To avoid i18n path failures, the container builds the project before running the compiled package.
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
+## Run tests (WIP)
 
 ```bash
 # unit tests

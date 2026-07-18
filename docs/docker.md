@@ -2,6 +2,8 @@
 
 ## Quick Start
 
+> The following commands (whichever one you use) will install the dependencies automatically.
+
 ### Development (recommended for testing)
 
 ```bash
@@ -60,16 +62,6 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
   docker compose exec app sh
   ```
 - To inspect Node errors, check the Docker logs or the direct output from `docker compose logs`.
-
-## Technical notes about the project
-
-- The project uses `nestjs-i18n` with:
-  ```ts
-  path: path.join(__dirname, 'i18n')
-  ```
-- `tsconfig.json` outputs files to `./dist`.
-- `nest-cli.json` copies the `i18n/**/*` assets to `dist`, which is required for translation loading.
-- To avoid i18n path failures, the container builds the project before running the compiled package.
 
 ## Conflict avoidance tips
 
